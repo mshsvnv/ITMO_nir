@@ -1,7 +1,7 @@
 import yt_dlp
 from pathlib import Path
 
-def download_youtube_videos(url_list: list, output_dir='data'):
+def download_youtube_videos(url_list: list, output_dir='input_data'):
     output_path = Path(output_dir)
     output_path.mkdir(exist_ok=True)
 
