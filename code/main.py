@@ -1,12 +1,9 @@
-import cv2
 import os
-import glob
 import sys
 import subprocess
-import shutil
 
 from super_resolution import run_real_esrgan
-from video_handler import video_to_photos, photos_to_video
+from video_handler import video_to_photos, photos_to_video, cleanup_folders
 
 INPUT_FOLDER = './input_frames'
 INTERPOLATED_FRAMES = './frames_2_interpolated'
@@ -44,7 +41,7 @@ if __name__ == '__main__':
                         output_folder=UPSCALED_FRAMES, 
                         scale=2)
         
-        print("\n--- Step 4: Encoding final video ---")
+        print("\nEncoding final video...")
 
         photos_to_video(output_video_path, fps, UPSCALED_FRAMES)
         
