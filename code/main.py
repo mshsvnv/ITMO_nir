@@ -53,4 +53,4 @@ if __name__ == '__main__':
     finally:
         # Очистка временных файлов
         print("Cleaning up temporary frames...")
-        # cleanup_folders() 
+        cleanup_folders() 
