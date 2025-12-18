@@ -32,7 +32,9 @@ if __name__ == '__main__':
         # сама интерполяция
         subprocess.run(['./ifrnet-cpu/ifrnet-ncnn-vulkan.exe', 
                         '-i', INPUT_FOLDER, 
-                        '-o', INTERPOLATED_FRAMES])
+                        '-o', INTERPOLATED_FRAMES],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL)
         
         # Super Resolution (Real-ESRGAN)
         print("\nRunning Super Resolution (Real-ESRGAN)...")
@@ -53,4 +55,4 @@ if __name__ == '__main__':
     finally:
         # Очистка временных файлов
         print("Cleaning up temporary frames...")
-        # cleanup_folders() 
+        cleanup_folders() 

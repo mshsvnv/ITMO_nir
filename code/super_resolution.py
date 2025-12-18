@@ -28,7 +28,7 @@ def run_real_esrgan(input_folder: str,
            '-s', str(scale)]
 
     print("\nRunning Real-ESRGAN Super Resolution...")
-    result = subprocess.run(cmd)
+    result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     if result.returncode != 0:
         raise RuntimeError("Real-ESRGAN failed with non-zero exit code")
