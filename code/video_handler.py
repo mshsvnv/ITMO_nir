@@ -1,20 +1,19 @@
 import cv2
 import os
 import glob
-import sys
-import subprocess
 import shutil
 
 INPUT_FOLDER = './input_frames'
 OUTPUT_FOLDER = './output_frames'
 
-def video_to_photos(video_path, output_folder = INPUT_FOLDER):
+
+def video_to_photos(video_path, output_folder=INPUT_FOLDER):
     
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    
+
     cap = cv2.VideoCapture(video_path)
-    
+
     if not cap.isOpened():
         print("Error: can't open file!")
         return
@@ -54,8 +53,9 @@ def video_to_photos(video_path, output_folder = INPUT_FOLDER):
 
     return fps
 
+
 def photos_to_video(video_path, original_fps, 
-                    interpolated_frames_folder = OUTPUT_FOLDER):
+                    interpolated_frames_folder=OUTPUT_FOLDER):
     
     all_frames = sorted(glob.glob(os.path.join(interpolated_frames_folder, "*.png")))
     total_frames = len(all_frames)
@@ -105,6 +105,7 @@ def photos_to_video(video_path, original_fps,
     
     out.release()
     print(f"Video created: '{video_path}'")
+
 
 def cleanup_folders():
     """
