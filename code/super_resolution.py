@@ -1,36 +1,104 @@
 import os
-import subprocess
+import os.path as osp
+import glob
+import cv2
+import numpy as np
+import torch
+import RRDBNet_arch as arch
 
-def run_real_esrgan(input_folder: str,
-                    output_folder: str,
-                    exe_path: str = 'realesrgan/realesrgan-ncnn-vulkan.exe',
-                    scale: int = 2):
+def run_esrgan(input_folder: str,
+                output_folder: str,
+                model_path: str = 'models/RRDB_ESRGAN_x4.pth'):
     """
-    Запускает Real-ESRGAN (ncnn-vulkan) для апскейла кадров.
+    Запускает ESRGAN для апскейла кадров.
 
     :param input_folder: папка с входными кадрами
     :param output_folder: папка для SR-кадров
-    :param exe_path: путь к realesrgan-ncnn-vulkan.exe
+    :param exe_path: путь к претренированной модели esrgan
     :param scale: коэффициент апскейла (2, 3, 4)
     """
 
     if not os.path.exists(input_folder):
         raise FileNotFoundError(f"Input folder does not exist: {input_folder}")
 
-    if not os.path.exists(exe_path):
-        raise FileNotFoundError(f"Real-ESRGAN executable not found: {exe_path}")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"ESRGAN model not found: {model_path}")
 
     os.makedirs(output_folder, exist_ok=True)
 
-    cmd = [exe_path, 
-           '-i', input_folder,
-           '-o', output_folder,
-           '-s', str(scale)]
+    print("\nRunning ESRGAN Super Resolution...")
 
-    print("\nRunning Real-ESRGAN Super Resolution...")
-    result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(f"Using device: {device}")
 
-    if result.returncode != 0:
-        raise RuntimeError("Real-ESRGAN failed with non-zero exit code")
+    model = arch.RRDBNet(3, 3, 64, 23, gc=32)
+    model.load_state_dict(torch.load(model_path), strict=True)
+    model.eval()
+    model = model.to(device)
 
-    print("Real-ESRGAN finished successfully.")
+    print('Model path {:s}. \nTesting...'.format(model_path))
+
+    idx = 0
+    for path in glob.glob(os.path.join(input_folder, '*')):
+        idx += 1
+        base = osp.splitext(osp.basename(path))[0]
+        print(idx, base)
+        # read images
+        img = cv2.imread(path, cv2.IMREAD_COLOR)
+        img = img * 1.0 / 255
+        img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
+        img_LR = img.unsqueeze(0)
+        img_LR = img_LR.to(device)
+
+        with torch.no_grad():
+            output = model(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
+        output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
+        output = (output * 255.0).round()
+        out_path = os.path.join(output_folder, f"{base}_sr.png")
+        cv2.imwrite(out_path, output)
+
+    print("ESRGAN finished successfully.")
+
+
+if __name__ == '__main__':
+
+    import sys
+    from video_handler import video_to_photos, photos_to_video, cleanup_folders
+
+    
+    INPUT_FOLDER = './input_frames'
+    UPSCALED_FRAMES = './frames_3_upscaled'
+
+    if len(sys.argv) < 3:
+        print("Usage: python script.py <input_video> <output_video>")
+        sys.exit(1)
+
+    input_video_path = sys.argv[1]
+    output_video_path = sys.argv[2]
+
+    try:
+        os.makedirs(INPUT_FOLDER, exist_ok=True)
+        os.makedirs(UPSCALED_FRAMES, exist_ok=True)
+
+        # 1. Извлекаем кадры из видео и получаем FPS
+        fps = video_to_photos(input_video_path)
+        
+        # Super Resolution (Real-ESRGAN)
+        print("\nRunning Super Resolution (Real-ESRGAN)...")
+        
+        run_esrgan(input_folder=INPUT_FOLDER, 
+                   output_folder=UPSCALED_FRAMES)
+        
+        print("\nEncoding final video...")
+
+        photos_to_video(output_video_path, fps, UPSCALED_FRAMES)
+        
+        print("\nProcess completed successfully!")
+        
+    except Exception as e:
+        print(f"\nError during processing: {e}")
+
+    finally:
+        # Очистка временных файлов
+        print("Cleaning up temporary frames...")
+        cleanup_folders() 

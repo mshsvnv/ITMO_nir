@@ -5,7 +5,8 @@ import shutil
 
 INPUT_FOLDER = './input_frames'
 OUTPUT_FOLDER = './output_frames'
-
+INTERPOLATED_FRAMES = './frames_2_interpolated'
+UPSCALED_FRAMES = './frames_3_upscaled'
 
 def video_to_photos(video_path, output_folder=INPUT_FOLDER):
     
@@ -111,7 +112,7 @@ def cleanup_folders():
     """
     Удаляет папки input_frames и output_frames после завершения обработки.
     """
-    folders_to_clean = [INPUT_FOLDER, OUTPUT_FOLDER]
+    folders_to_clean = [INPUT_FOLDER, OUTPUT_FOLDER, INTERPOLATED_FRAMES, UPSCALED_FRAMES]
     
     for folder in folders_to_clean:
         if os.path.exists(folder):

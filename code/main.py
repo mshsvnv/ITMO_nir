@@ -2,7 +2,7 @@ import os
 import sys
 import subprocess
 
-from super_resolution import run_real_esrgan
+from super_resolution import run_esrgan
 from video_handler import video_to_photos, photos_to_video, cleanup_folders
 
 INPUT_FOLDER = './input_frames'
@@ -39,9 +39,8 @@ if __name__ == '__main__':
         # Super Resolution (Real-ESRGAN)
         print("\nRunning Super Resolution (Real-ESRGAN)...")
         
-        run_real_esrgan(input_folder=INTERPOLATED_FRAMES, 
-                        output_folder=UPSCALED_FRAMES, 
-                        scale=2)
+        run_esrgan(input_folder=INTERPOLATED_FRAMES, 
+                   output_folder=UPSCALED_FRAMES)
         
         print("\nEncoding final video...")
 
