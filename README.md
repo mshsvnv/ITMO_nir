@@ -10,17 +10,18 @@
 
 В папке [code](./code/)
 
-1. Активация виртуальной среды
-```bash
-source ./venv/Scripts/activate
-```
+Сначала скачать [pre-trained модели IFRNet](https://www.dropbox.com/sh/hrewbpedd2cgdp3/AADbEivu0-CKDQcHtKdMNJPJa?dl=0) и поместить все в папку [ifrnet](./code/ifrnet)
 
-2. Установка зависимостей
 ```bash
+# 1. Создать виртуальное окружение
+python -m venv venv
+
+# 2. Активировать его
+venv\Scripts\activate
+
+# 3. Установить зависимости
 pip install -r requirements.txt
-```
 
-3. Запуск ```main.py```
-```bash
+# 4. Запустить скрипт
 python main.py 'input.mp4' 'output.mp4'
 ```

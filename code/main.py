@@ -1,7 +1,7 @@
 import os
 import sys
-import subprocess
 
+from frame_interpolation import run_ifrnet
 from super_resolution import run_esrgan
 from video_handler import video_to_photos, photos_to_video, cleanup_folders
 
@@ -27,14 +27,10 @@ if __name__ == '__main__':
         fps = video_to_photos(input_video_path)
 
         # 2. Запускаем интерполяцию кадров
-        print("\nRunning frame interpolation...")
+        print("\nRunning frame interpolation (IFRNet)...")
         
-        # сама интерполяция
-        subprocess.run(['./ifrnet-cpu/ifrnet-ncnn-vulkan.exe', 
-                        '-i', INPUT_FOLDER, 
-                        '-o', INTERPOLATED_FRAMES],
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL)
+        run_ifrnet(input_folder=INPUT_FOLDER, 
+                   output_folder=INTERPOLATED_FRAMES)
         
         # Super Resolution (Real-ESRGAN)
         print("\nRunning Super Resolution (Real-ESRGAN)...")
