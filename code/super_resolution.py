@@ -45,6 +45,7 @@ def run_esrgan(input_folder: str,
         print(idx, base)
         # read images
         img = cv2.imread(path, cv2.IMREAD_COLOR)
+        img = cv2.resize(img, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
         img = img * 1.0 / 255
         img = torch.from_numpy(np.transpose(img[:, :, [2, 1, 0]], (2, 0, 1))).float()
         img_LR = img.unsqueeze(0)
@@ -53,7 +54,7 @@ def run_esrgan(input_folder: str,
         with torch.no_grad():
             output = model(img_LR).data.squeeze().float().cpu().clamp_(0, 1).numpy()
         output = np.transpose(output[[2, 1, 0], :, :], (1, 2, 0))
-        output = (output * 255.0).round()
+        output = (output * 255.0).round().astype(np.uint8)
         out_path = os.path.join(output_folder, f"{base}_sr.png")
         cv2.imwrite(out_path, output)
 
