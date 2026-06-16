@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
-from torchvision.models import vgg11, VGG11_Weights
+from torchvision.models import vgg19, VGG19_Weights
 
 class VGGFeatureExtractor(nn.Module):
     def __init__(self):
         super(VGGFeatureExtractor, self).__init__()
-        vgg = vgg11(weights=VGG11_Weights.DEFAULT)
-        self.features = nn.Sequential(*list(vgg.features.children())[:20]).eval()
+        vgg = vgg19(weights=VGG19_Weights.DEFAULT)
+        self.features = nn.Sequential(*list(vgg.features.children())[:35]).eval()
         
         for param in self.parameters():
             param.requires_grad = False
